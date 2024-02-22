@@ -45,7 +45,21 @@ Stack:
     - ### Zwraca
         ```json 
         {
-            "data": "12.02 - 18.02 2024"
+            "data": "12.02 - 18.02 2024",
+            "dni": [
+                {
+                    "data": "12.02.2024",
+                    "dzien": "poniedziałek",
+                    "lekcje": [
+                        {
+                            "id": 0,
+                            "grupa": "4 TiP",
+                            "przedmiot": "Praktyka Zawodowa",
+                            "nauczyciel": "Adam Mickiewicz"
+                        }
+                    ]
+                }
+            ]
         }
         ```
     - ### Kody
@@ -53,9 +67,161 @@ Stack:
         - **500** serwer nie działa
 
 - [POST] `/api/v1/widok/dodaj_lekcje` - 4.png
-- [GET] `/api/v1/widok/lekcje/opis` - 5.png
-- [GET] `/api/v1/widok/lekcje/oceny` - 6.png
-- [GET] `/api/v1/widok/lekcje/frekwencja` - 7.png
-- [POST] `/api/v1/widok/lekcje/frekwencja/zmien` - 8.png
+    - ### Potrzebuje
+        ```json
+        {
+            "grupa": "",
+            "przedmiot": ""
+        }
+        ```
+    - ### Kody
+        - **200** zadziałało
+        - **400** coś nie wypełnione
+        - **500** serwer nie działa
+
+- [GET] `/api/v1/widok/lekcje/:id/opis` - 5.png
+    - ### Zwraca
+        ```json 
+        {
+            "nauczyciel": "Adam Mickiewicz",
+            "zastępstwo": false,
+            "nauczyciel_wspomagajacy": null,
+            "zastepstwo_nau_wspom": false,
+            "nauczyciel_wspomagajacy_2": null,
+            "zastepstwo_nau_wspom_2": false,
+            "grupa": "4 TiP",
+            "przedmiot": "Praktyka Zawodowa",
+            "temat": "ABCD",
+            "kolejny_nr_tematu": 80
+        }
+        ```
+    - ### Kody
+        - **200** zadziałało
+        - **500** serwer nie działa
+
+- [GET] `/api/v1/widok/lekcje/:id/oceny` - 6.png
+    - ### Zwraca
+        ```json 
+        {
+            "okres_klasyfikacyjny": 2,
+            "grupa_kolumn": "moje",
+            "pokaz_uczniow": "Wszystkich",
+            "przedmiot": "Praktyka zawodowa",
+            "uczniowe": [
+                {
+                    "numer": 1,
+                    "imie_nazwisko": "Jan Góra",
+                    "srednia": 5.43
+                }
+            ]
+        }
+        ```
+    - ### Kody
+        - **200** zadziałało
+        - **500** serwer nie działa
+
+- [GET] `/api/v1/widok/lekcje/:id/frekwencja` - 7.png
+    - ### Zwraca
+        ```json 
+        {
+            "uczniowie": [
+                {
+                    "nr": 1,
+                    "imie_nazwisko": "Jan Góra",
+                    "frekwencja": ["b", "o", "o", "o"
+                    "o", "o", "o", "o", "o", "n", "?", "b"
+                    "b", "b"]
+                }
+            ],
+            "obecnych": [0, 1,1, 1
+                    1, 1,1, 1, 1, 0, 0, 0
+                    0, 0]
+        }
+        ```
+    - ### Kody
+        - **200** zadziałało
+        - **500** serwer nie działa
+
+- [POST] `/api/v1/widok/lekcje/:id/frekwencja/zmien` - 8.png
+    - ### Potrzebuje
+        ```json 
+        {
+            "uczniowie": [
+                {
+                    "nr": 1,
+                    "frekwencja": "o"
+                }
+            ]
+        }
+        ```
+    - ### Kody
+        - **200** zadziałało
+        - **500** serwer nie działa
+
 - [GET] `/api/v1/widok/wiadomosci` - w.png
+    - ### Zwraca
+        ```json 
+        {
+            "wiadomosci": [
+                {
+                    "id": 0,
+                    "nadawca": "Wladylaw Bomczyk",
+                    "temat": "Big T",
+                    "zalacznik": null,
+                    "otrzymano": "15.02.2024 08:52:10",
+                    "skrzynka": "Adam Mickiewicz",
+                    "przeczytano": false
+                }
+            ]
+        }
+        ```
+    - ### Kody
+        - **200** zadziałało
+        - **500** serwer nie działa
+
+- [GET] `/api/v1/widok/wiadomosci/lista_adresatow` - w.png
+    - ### Zwraca
+        ```json 
+        {
+            "adresaci": [
+                "Wladylaw Bomczyk",
+                "Jan Góra"
+            ]
+        }
+        ```
+    - ### Kody
+        - **200** zadziałało
+        - **500** serwer nie działa
+
+- [GET] `/api/v1/widok/wiadomosci/:id` - w.png
+    - ### Zwraca
+        ```json 
+        {
+            "wiadomosci": [
+                {
+                    "id": 0,
+                    "nadawca": "Wladylaw Bomczyk",
+                    "temat": "Big T",
+                    "zalacznik": null,
+                    "otrzymano": "15.02.2024 08:52:10",
+                    "skrzynka": "Adam Mickiewicz",
+                    "tresc": "uwaga, big T na rejonie"
+                }
+            ]
+        }
+        ```
+    - ### Kody
+        - **200** zadziałało
+        - **500** serwer nie działa
+
 - [POST] `/api/v1/widok/wiadomosci/wyslij` - w2.png
+    - ### Potrzebuje
+        ```json 
+        {
+            "nadawca": "Adam Mickiewicz",
+            "tresc": "rozumiem"
+        }
+        ```
+    - ### Kody
+        - **200** zadziałało
+        - **500** serwer nie działa
