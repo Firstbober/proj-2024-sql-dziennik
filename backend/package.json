@@ -1,0 +1,27 @@
+{
+  "name": "proj-sql-dziennik-backend",
+  "version": "0.1.0",
+  "description": "Backend dla dziennika elektronicznego",
+  "scripts": {
+    "watch": "tsc --watch --preserveWatchOutput --pretty",
+    "dev": "cross-env NODE_ENV=development nodemon",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "build": "rimraf dist && tsc",
+    "start": "node dist/index.js"
+  },
+  "author": "Firstbober <firstbober@tutanota.com>",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "fastify": "^4.26.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.19",
+    "cross-env": "^7.0.3",
+    "fastify-tsconfig": "^2.0.0",
+    "nodemon": "^3.0.3",
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.3"
+  }
+}

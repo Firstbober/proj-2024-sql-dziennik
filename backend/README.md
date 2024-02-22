@@ -5,7 +5,29 @@ Stack:
 - Prisma
 - SQLite
 
+## Jak uruchomić
+
+- `npm i`
+
+Dev:
+- `npm run watch`
+- `npm run dev`
+
+Prod:
+- `npm run build`
+- `npm run start`
+
 ## Endpointy
+Każdy musi mieć header z `content-type`: `'application/json'`
+
+Każdy endpoint może zwrócić:
+```json
+{
+    "statusCode": 000,
+    "error": ""
+}
+```
+
 
 - [POST] `/api/v1/login` 1.png
     - ### Zwraca
@@ -18,13 +40,15 @@ Stack:
         ```json
         {
             "login": "adam",
-            "hasło": "mickiewicz"
+            "haslo": "mickiewicz"
         }
         ```
     - ### Kody
         - **200** zadziałało
         - **500** serwer nie działa
         - **400** zły login lub hasło
+
+Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
 
 - [GET] `/api/v1/widok/glowny` - 2.png
     - ### Zwraca
@@ -128,13 +152,13 @@ Stack:
                 {
                     "nr": 1,
                     "imie_nazwisko": "Jan Góra",
-                    "frekwencja": ["b", "o", "o", "o"
-                    "o", "o", "o", "o", "o", "n", "?", "b"
+                    "frekwencja": ["b", "o", "o", "o",
+                    "o", "o", "o", "o", "o", "n", "?", "b",
                     "b", "b"]
                 }
             ],
-            "obecnych": [0, 1,1, 1
-                    1, 1,1, 1, 1, 0, 0, 0
+            "obecnych": [0, 1,1, 1,
+                    1, 1,1, 1, 1, 0, 0, 0,
                     0, 0]
         }
         ```
@@ -158,7 +182,7 @@ Stack:
         - **200** zadziałało
         - **500** serwer nie działa
 
-- [GET] `/api/v1/widok/wiadomosci` - w.png
+- [GET] `/api/v1/wiadomosci` - w.png
     - ### Zwraca
         ```json 
         {
@@ -179,7 +203,7 @@ Stack:
         - **200** zadziałało
         - **500** serwer nie działa
 
-- [GET] `/api/v1/widok/wiadomosci/lista_adresatow` - w.png
+- [GET] `/api/v1/wiadomosci/lista_adresatow` - w.png
     - ### Zwraca
         ```json 
         {
@@ -193,7 +217,7 @@ Stack:
         - **200** zadziałało
         - **500** serwer nie działa
 
-- [GET] `/api/v1/widok/wiadomosci/:id` - w.png
+- [GET] `/api/v1/wiadomosci/:id` - w.png
     - ### Zwraca
         ```json 
         {
@@ -214,7 +238,7 @@ Stack:
         - **200** zadziałało
         - **500** serwer nie działa
 
-- [POST] `/api/v1/widok/wiadomosci/wyslij` - w2.png
+- [POST] `/api/v1/wiadomosci/wyslij` - w2.png
     - ### Potrzebuje
         ```json 
         {
