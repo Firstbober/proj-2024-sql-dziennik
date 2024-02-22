@@ -9,9 +9,12 @@
     "build": "rimraf dist && tsc",
     "start": "node dist/index.js"
   },
+  "type": "module",
   "author": "Firstbober <firstbober@tutanota.com>",
   "license": "UNLICENSED",
   "dependencies": {
+    "@prisma/client": "^5.10.2",
+    "crypto-random-string": "^5.0.0",
     "fastify": "^4.26.1"
   },
   "devDependencies": {
@@ -20,6 +23,7 @@
     "fastify-tsconfig": "^2.0.0",
     "nodemon": "^3.0.3",
     "prettier": "^3.2.5",
+    "prisma": "^5.10.2",
     "rimraf": "^5.0.5",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.3"

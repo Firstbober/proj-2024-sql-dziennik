@@ -13,6 +13,7 @@
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "module": "NodeNext"
   },
   "exclude": [
     "node_modules"

@@ -1,10 +1,15 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import { checkIfLogged } from "../database.js";
 
 export default async function lekcjeController(fastify: FastifyInstance) {
   // GET /api/v1/widok/glowny
   fastify.get(
     "/glowny",
-    async function (_request: FastifyRequest, reply: FastifyReply) {
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      if ((await checkIfLogged(request.headers.authorization!)) == null) {
+        return reply.code(401).send();
+      }
+
       reply.send({
         godzina: "12:05",
         data: "16 lutego 2024",
@@ -18,7 +23,11 @@ export default async function lekcjeController(fastify: FastifyInstance) {
   // GET /api/v1/widok/lekcje
   fastify.get(
     "/lekcje",
-    async function (_request: FastifyRequest, reply: FastifyReply) {
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      if ((await checkIfLogged(request.headers.authorization!)) == null) {
+        return reply.code(401).send();
+      }
+
       reply.send({
         data: "12.02 - 18.02 2024",
         dni: [
@@ -42,7 +51,11 @@ export default async function lekcjeController(fastify: FastifyInstance) {
   // GET /api/v1/widok/dodaj_lekcje
   fastify.get(
     "/dodaj_lekcje",
-    async function (_request: FastifyRequest, reply: FastifyReply) {
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      if ((await checkIfLogged(request.headers.authorization!)) == null) {
+        return reply.code(401).send();
+      }
+
       reply.send({
         grupa: "",
         przedmiot: "",
@@ -54,13 +67,17 @@ export default async function lekcjeController(fastify: FastifyInstance) {
   fastify.get(
     "/lekcje/:id/opis",
     async function (
-      _request: FastifyRequest<{
+      request: FastifyRequest<{
         Params: {
           id: number;
         };
       }>,
       reply: FastifyReply
     ) {
+      if ((await checkIfLogged(request.headers.authorization!)) == null) {
+        return reply.code(401).send();
+      }
+
       reply.send({
         nauczyciel: "Adam Mickiewicz",
         zastępstwo: false,
@@ -80,25 +97,29 @@ export default async function lekcjeController(fastify: FastifyInstance) {
   fastify.get(
     "/lekcje/:id/oceny",
     async function (
-      _request: FastifyRequest<{
+      request: FastifyRequest<{
         Params: {
           id: number;
         };
       }>,
       reply: FastifyReply
     ) {
+      if ((await checkIfLogged(request.headers.authorization!)) == null) {
+        return reply.code(401).send();
+      }
+
       reply.send({
-        "okres_klasyfikacyjny": 2,
-        "grupa_kolumn": "moje",
-        "pokaz_uczniow": "Wszystkich",
-        "przedmiot": "Praktyka zawodowa",
-        "uczniowe": [
-            {
-                "numer": 1,
-                "imie_nazwisko": "Jan Góra",
-                "srednia": 5.43
-            }
-        ]
+        okres_klasyfikacyjny: 2,
+        grupa_kolumn: "moje",
+        pokaz_uczniow: "Wszystkich",
+        przedmiot: "Praktyka zawodowa",
+        uczniowe: [
+          {
+            numer: 1,
+            imie_nazwisko: "Jan Góra",
+            srednia: 5.43,
+          },
+        ],
       });
     }
   );
@@ -112,26 +133,41 @@ export default async function lekcjeController(fastify: FastifyInstance) {
   fastify.get(
     "/lekcje/:id/frekwencja",
     async function (
-      _request: FastifyRequest<{
+      request: FastifyRequest<{
         Params: {
           id: number;
         };
       }>,
       reply: FastifyReply
     ) {
+      if ((await checkIfLogged(request.headers.authorization!)) == null) {
+        return reply.code(401).send();
+      }
+
       reply.send({
-        "uczniowie": [
+        uczniowie: [
           {
-              "nr": 1,
-              "imie_nazwisko": "Jan Góra",
-              "frekwencja": ["b", "o", "o", "o",
-              "o", "o", "o", "o", "o", "n", "?", "b",
-              "b", "b"]
-          }
-      ],
-      "obecnych": [0, 1,1, 1,
-              1, 1,1, 1, 1, 0, 0, 0,
-              0, 0]
+            nr: 1,
+            imie_nazwisko: "Jan Góra",
+            frekwencja: [
+              "b",
+              "o",
+              "o",
+              "o",
+              "o",
+              "o",
+              "o",
+              "o",
+              "o",
+              "n",
+              "?",
+              "b",
+              "b",
+              "b",
+            ],
+          },
+        ],
+        obecnych: [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
       });
     }
   );
@@ -140,7 +176,7 @@ export default async function lekcjeController(fastify: FastifyInstance) {
   fastify.post(
     "/lekcje/:id/frekwencja/zmien",
     async function (
-      _request: FastifyRequest<{
+      request: FastifyRequest<{
         Params: {
           id: number;
         };
@@ -150,6 +186,10 @@ export default async function lekcjeController(fastify: FastifyInstance) {
       }>,
       reply: FastifyReply
     ) {
+      if ((await checkIfLogged(request.headers.authorization!)) == null) {
+        return reply.code(401).send();
+      }
+
       reply.send();
     }
   );

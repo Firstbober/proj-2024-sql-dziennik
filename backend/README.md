@@ -7,6 +7,8 @@ Stack:
 
 ## Jak uruchomić
 
+- `export NODE_TLS_REJECT_UNAUTHORIZED=0` - ose :)
+
 - `npm i`
 
 Dev:
@@ -24,9 +26,12 @@ Każdy endpoint może zwrócić:
 ```json
 {
     "statusCode": 000,
-    "error": ""
+    "error": "",
+    "message": ""
 }
 ```
+Każdy endpoint, poza login, może zwrócić 401 gdy
+nie ma tokenu.
 
 
 - [POST] `/api/v1/login` 1.png
@@ -134,6 +139,7 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
             "uczniowe": [
                 {
                     "numer": 1,
+                    "id": 2,
                     "imie_nazwisko": "Jan Góra",
                     "srednia": 5.43
                 }
@@ -151,6 +157,7 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
             "uczniowie": [
                 {
                     "nr": 1,
+                    "id": 2,
                     "imie_nazwisko": "Jan Góra",
                     "frekwencja": ["b", "o", "o", "o",
                     "o", "o", "o", "o", "o", "n", "?", "b",
@@ -173,6 +180,7 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
             "uczniowie": [
                 {
                     "nr": 1,
+                    "id": 2,
                     "frekwencja": "o"
                 }
             ]
@@ -208,8 +216,8 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
         ```json 
         {
             "adresaci": [
-                "Wladylaw Bomczyk",
-                "Jan Góra"
+                ["Wladylaw Bomczyk", 1],
+                ["Jan Góra", 2]
             ]
         }
         ```
@@ -242,7 +250,8 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
     - ### Potrzebuje
         ```json 
         {
-            "nadawca": "Adam Mickiewicz",
+            "odbiorca": 1,
+            "temat": "Re: Big T",
             "tresc": "rozumiem"
         }
         ```
