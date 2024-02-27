@@ -15,6 +15,7 @@
   "dependencies": {
     "@prisma/client": "^5.10.2",
     "crypto-random-string": "^5.0.0",
+    "date-fns": "^3.3.1",
     "fastify": "^4.26.1"
   },
   "devDependencies": {

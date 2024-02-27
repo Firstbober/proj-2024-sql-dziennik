@@ -6,6 +6,23 @@ meta {
 
 post {
   url: http://localhost:3006/api/v1/widok/dodaj_lekcje
-  body: none
+  body: json
   auth: none
+}
+
+query {
+  : 
+}
+
+headers {
+  Authorization: KfmSeKWSAmfjEqmMAlYHK~2AVr
+}
+
+body:json {
+  {
+    "nauczyciel": "Adam Mickiewicz",
+    "godzina": 5,
+    "grupa": "6TP",
+    "przedmiot": "Programowanie"
+  }
 }

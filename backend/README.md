@@ -82,6 +82,7 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
                     "lekcje": [
                         {
                             "id": 0,
+                            "godzina": 0,
                             "grupa": "4 TiP",
                             "przedmiot": "Praktyka Zawodowa",
                             "nauczyciel": "Adam Mickiewicz"
@@ -99,6 +100,8 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
     - ### Potrzebuje
         ```json
         {
+            "nauczyciel": "Adam Mickiewicz",
+            "godzina": 0,
             "grupa": "",
             "przedmiot": ""
         }
@@ -106,6 +109,7 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
     - ### Kody
         - **200** zadziałało
         - **400** coś nie wypełnione
+        - **409** juz cos jest
         - **500** serwer nie działa
 
 - [GET] `/api/v1/widok/lekcje/:id/opis` - 5.png

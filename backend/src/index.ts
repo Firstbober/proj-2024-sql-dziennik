@@ -6,4 +6,6 @@ app.listen({ port: FASTIFY_PORT });
 
 console.log(`🚀  Fastify server running on port http://localhost:${FASTIFY_PORT}`);
 console.log(`Route index: /`);
-console.log(`Route user: /api/v1/user`);
+console.log(`Route login: /api/v1/login`);
+console.log(`Route lekcje: /api/v1/lekcje`);
+console.log(`Route wiadomosci: /api/v1/wiadomosci`);

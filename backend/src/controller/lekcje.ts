@@ -1,19 +1,49 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { checkIfLogged } from "../database.js";
+import prisma, { checkIfLogged } from "../database.js";
+import { User } from "@prisma/client";
+import {
+  endOfDay,
+  endOfWeek,
+  setDefaultOptions,
+  startOfDay,
+  startOfWeek,
+  subDays,
+} from "date-fns";
+import { pl } from "date-fns/locale";
 
 export default async function lekcjeController(fastify: FastifyInstance) {
+  setDefaultOptions({
+    locale: pl
+  })
+
   // GET /api/v1/widok/glowny
   fastify.get(
     "/glowny",
     async function (request: FastifyRequest, reply: FastifyReply) {
-      if ((await checkIfLogged(request.headers.authorization!)) == null) {
+      let user: User | null;
+      if (
+        (user = await checkIfLogged(request.headers.authorization!)) == null
+      ) {
         return reply.code(401).send();
       }
 
       reply.send({
-        godzina: "12:05",
-        data: "16 lutego 2024",
-        ilosc_wiadomosci: 16,
+        godzina: new Date().toLocaleTimeString("pl-PL", {
+          second: undefined,
+          minute: "2-digit",
+          hour: "2-digit",
+        }),
+        data: new Date().toLocaleDateString("pl-PL", {
+          weekday: undefined,
+          year: "numeric",
+          month: "long",
+          day: "2-digit",
+        }),
+        ilosc_wiadomosci: await prisma.message.count({
+          where: {
+            to: user,
+          },
+        }),
         do_zmiany_hasla_zostalo: 23,
         wersja_dziennika: "0.0.0.1 alpha",
       });
@@ -28,38 +58,139 @@ export default async function lekcjeController(fastify: FastifyInstance) {
         return reply.code(401).send();
       }
 
-      reply.send({
-        data: "12.02 - 18.02 2024",
-        dni: [
-          {
-            data: "12.02.2024",
-            dzien: "poniedziałek",
-            lekcje: [
-              {
-                id: 0,
-                grupa: "4 TiP",
-                przedmiot: "Praktyka Zawodowa",
-                nauczyciel: "Adam Mickiewicz",
-              },
-            ],
+      let days = [];
+      const db_lessons = await prisma.lesson.findMany({
+        where: {
+          date: {
+            gte: startOfWeek(new Date()),
+            lte: subDays(endOfWeek(new Date()), 1),
           },
-        ],
+        },
+        orderBy: {
+          date: "asc",
+        },
+      });
+
+      let lastDate = startOfWeek(new Date());
+      let lessons = [];
+      for (const lesson of db_lessons) {
+        if (lastDate.getDay() != lesson.date.getDay()) {
+          days.push({
+            data: lastDate.toLocaleDateString("pl-PL", {
+              weekday: undefined,
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            }),
+            dzien: lastDate.toLocaleDateString("pl-PL", {
+              weekday: "long",
+              year: undefined,
+              month: undefined,
+              day: undefined,
+            }),
+            lekcje: lessons,
+          });
+          lastDate = lesson.date;
+        }
+
+        lessons.push({
+          id: lesson.id,
+          godzina: lesson.hour,
+          grupa: lesson.group,
+          przedmiot: lesson.subject,
+          nauczyciel: await prisma.user.findUnique({
+            where: {
+              id: lesson.id,
+            },
+            select: {
+              name: true,
+            },
+          }),
+        });
+      }
+
+      reply.send({
+        data: `${subDays(endOfWeek(new Date()), 1).toLocaleDateString("pl-PL", {
+          weekday: undefined,
+          year: undefined,
+          month: "2-digit",
+          day: "2-digit",
+        })} - ${startOfWeek(new Date()).toLocaleDateString("pl-PL", {
+          weekday: undefined,
+          year: undefined,
+          month: "2-digit",
+          day: "2-digit",
+        })} ${new Date().getFullYear()}`,
+        dni: days,
       });
     }
   );
 
-  // GET /api/v1/widok/dodaj_lekcje
-  fastify.get(
+  // POST /api/v1/widok/dodaj_lekcje
+  fastify.post(
     "/dodaj_lekcje",
-    async function (request: FastifyRequest, reply: FastifyReply) {
+    async function (
+      request: FastifyRequest<{
+        Body: {
+          nauczyciel: string;
+          godzina: number;
+          grupa: string;
+          przedmiot: string;
+        };
+      }>,
+      reply: FastifyReply
+    ) {
       if ((await checkIfLogged(request.headers.authorization!)) == null) {
         return reply.code(401).send();
       }
 
-      reply.send({
-        grupa: "",
-        przedmiot: "",
+      if (
+        request.body.nauczyciel == undefined ||
+        request.body.godzina == undefined ||
+        request.body.grupa == undefined ||
+        request.body.przedmiot == undefined
+      ) {
+        return reply.code(400).send();
+      }
+
+      const lessonCount = await prisma.lesson.count({
+        where: {
+          date: {
+            gte: startOfDay(new Date()),
+            lte: endOfDay(new Date()),
+          },
+          hour: request.body.godzina,
+          teacher: {
+            name: request.body.nauczyciel,
+          },
+        },
       });
+
+      if (lessonCount > 0) {
+        return reply.code(409).send();
+      }
+
+      const teacher = await prisma.user.findMany({
+        where: {
+          name: request.body.nauczyciel,
+        },
+      });
+
+      await prisma.lesson.create({
+        data: {
+          date: new Date(),
+          hour: request.body.godzina,
+          group: request.body.grupa,
+          subject: request.body.przedmiot,
+          teacher: {
+            connect: {
+              id: teacher[0].id,
+            },
+          },
+        },
+      });
+
+      reply.send();
     }
   );
 

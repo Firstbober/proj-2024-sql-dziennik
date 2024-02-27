@@ -55,7 +55,7 @@ export default async function loginController(fastify: FastifyInstance) {
       }
 
       const token = cryptoRandomString({length:26, type: 'url-safe'});
-      prisma.session.create({
+      await prisma.session.create({
         data: {
           token: token,
           userId: user.id
