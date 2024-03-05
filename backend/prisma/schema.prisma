@@ -24,6 +24,7 @@ model User {
 
   Session Session[]
   Lesson  Lesson[]
+  Grade   Grade[]
 }
 
 model Session {
@@ -55,7 +56,21 @@ model Lesson {
   hour    Int // 0 - 13
   group   String
   subject String
-  
-  teacher User     @relation(fields: [userId], references: [id])
+  topic   String   @default("")
+
+  teacher User    @relation(fields: [userId], references: [id])
   userId  Int
+  Grade   Grade[]
+}
+
+model Grade {
+  id Int @id @default(autoincrement())
+
+  date     DateTime
+  lesson   Lesson   @relation(fields: [lessonId], references: [id])
+  student  User     @relation(fields: [userId], references: [id])
+  lessonId Int
+  userId   Int
+
+  grade Int
 }

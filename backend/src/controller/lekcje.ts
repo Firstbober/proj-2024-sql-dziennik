@@ -13,8 +13,8 @@ import { pl } from "date-fns/locale";
 
 export default async function lekcjeController(fastify: FastifyInstance) {
   setDefaultOptions({
-    locale: pl
-  })
+    locale: pl,
+  });
 
   // GET /api/v1/widok/glowny
   fastify.get(
@@ -98,24 +98,26 @@ export default async function lekcjeController(fastify: FastifyInstance) {
           godzina: lesson.hour,
           grupa: lesson.group,
           przedmiot: lesson.subject,
-          nauczyciel: await prisma.user.findUnique({
-            where: {
-              id: lesson.id,
-            },
-            select: {
-              name: true,
-            },
-          }),
+          nauczyciel: (
+            await prisma.user.findUnique({
+              where: {
+                id: lesson.userId,
+              },
+              select: {
+                name: true,
+              },
+            })
+          )?.name,
         });
       }
 
       reply.send({
-        data: `${subDays(endOfWeek(new Date()), 1).toLocaleDateString("pl-PL", {
+        data: `${startOfWeek(new Date()).toLocaleDateString("pl-PL", {
           weekday: undefined,
           year: undefined,
           month: "2-digit",
           day: "2-digit",
-        })} - ${startOfWeek(new Date()).toLocaleDateString("pl-PL", {
+        })} - ${subDays(endOfWeek(new Date()), 1).toLocaleDateString("pl-PL", {
           weekday: undefined,
           year: undefined,
           month: "2-digit",
@@ -136,6 +138,7 @@ export default async function lekcjeController(fastify: FastifyInstance) {
           godzina: number;
           grupa: string;
           przedmiot: string;
+          temat: string;
         };
       }>,
       reply: FastifyReply
@@ -209,17 +212,39 @@ export default async function lekcjeController(fastify: FastifyInstance) {
         return reply.code(401).send();
       }
 
+      if (request.params.id == undefined) {
+        return reply.code(400).send();
+      }
+
+      const lesson = await prisma.lesson.findUnique({
+        where: {
+          id: Number(request.params.id),
+        },
+
+        select: {
+          teacher: true,
+          group: true,
+          subject: true,
+          topic: true,
+          id: true,
+        },
+      });
+
+      if (lesson == null) {
+        return reply.code(404).send();
+      }
+
       reply.send({
-        nauczyciel: "Adam Mickiewicz",
+        nauczyciel: lesson.teacher.name,
         zastępstwo: false,
         nauczyciel_wspomagajacy: null,
         zastepstwo_nau_wspom: false,
         nauczyciel_wspomagajacy_2: null,
         zastepstwo_nau_wspom_2: false,
-        grupa: "4 TiP",
-        przedmiot: "Praktyka Zawodowa",
-        temat: "ABCD",
-        kolejny_nr_tematu: 80,
+        grupa: lesson.group,
+        przedmiot: lesson.subject,
+        temat: lesson.topic,
+        kolejny_nr_tematu: lesson.id + 1,
       });
     }
   );
@@ -239,18 +264,67 @@ export default async function lekcjeController(fastify: FastifyInstance) {
         return reply.code(401).send();
       }
 
+      if (request.params.id == undefined) {
+        return reply.code(400).send();
+      }
+
+      const lesson = await prisma.lesson.findUnique({
+        where: {
+          id: Number(request.params.id),
+        },
+
+        select: {
+          subject: true,
+          id: true,
+        },
+      });
+
+      if (lesson == null) {
+        return reply.code(404).send();
+      }
+
+      const grades = await prisma.grade.findMany({
+        where: {
+          lessonId: lesson.id,
+        },
+        select: {
+          student: true,
+          grade: true,
+        },
+      });
+
+      console.log(grades)
+
+      let uczniowie: any = {};
+
+      for (const grade of grades) {
+        if (uczniowie[grade.student.id] == undefined) {
+          uczniowie[grade.student.id] = {
+            id: grade.student.id,
+            imie_naziwsko: grade.student.name,
+            oceny: [],
+            srednia: 0,
+          };
+        }
+
+        uczniowie[grade.student.id].oceny.push(grade.grade);
+      }
+
       reply.send({
         okres_klasyfikacyjny: 2,
         grupa_kolumn: "moje",
         pokaz_uczniow: "Wszystkich",
-        przedmiot: "Praktyka zawodowa",
-        uczniowe: [
-          {
-            numer: 1,
-            imie_nazwisko: "Jan Góra",
-            srednia: 5.43,
-          },
-        ],
+        przedmiot: lesson.subject,
+        uczniowe: Object.entries(uczniowie).map((va: any) => {
+          const v = va[1];
+          return {
+            id: v.id,
+            imie_nazwisko: v.imie_naziwsko,
+            oceny: v.oceny,
+            srednia:
+              v.oceny.reduce((a: number, b: number) => a + b) / v.oceny.length,
+          };
+        }),
       });
     }
   );

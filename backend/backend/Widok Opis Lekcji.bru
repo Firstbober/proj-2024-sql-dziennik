@@ -5,7 +5,15 @@ meta {
 }
 
 get {
-  url: http://localhost:3006/api/v1/widok/lekcje/:id/opis
-  body: none
+  url: http://localhost:3006/api/v1/widok/lekcje/2/opis
+  body: json
   auth: none
+}
+
+headers {
+  Authorization: KfmSeKWSAmfjEqmMAlYHK~2AVr
+}
+
+body:json {
+  {}
 }

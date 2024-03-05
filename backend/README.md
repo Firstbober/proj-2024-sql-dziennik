@@ -103,7 +103,8 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
             "nauczyciel": "Adam Mickiewicz",
             "godzina": 0,
             "grupa": "",
-            "przedmiot": ""
+            "przedmiot": "",
+            "temat": "",
         }
         ```
     - ### Kody
@@ -130,6 +131,7 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
         ```
     - ### Kody
         - **200** zadziałało
+        - **404** nie ma
         - **500** serwer nie działa
 
 - [GET] `/api/v1/widok/lekcje/:id/oceny` - 6.png
@@ -142,10 +144,10 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
             "przedmiot": "Praktyka zawodowa",
             "uczniowe": [
                 {
-                    "numer": 1,
                     "id": 2,
                     "imie_nazwisko": "Jan Góra",
-                    "srednia": 5.43
+                    "oceny": [4, 5],
+                    "srednia": 4.5
                 }
             ]
         }
