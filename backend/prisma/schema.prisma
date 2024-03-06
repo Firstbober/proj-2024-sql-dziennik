@@ -22,9 +22,10 @@ model User {
   messagesFrom Message[] @relation("from")
   messagesTo   Message[] @relation("to")
 
-  Session Session[]
-  Lesson  Lesson[]
-  Grade   Grade[]
+  Session  Session[]
+  Lesson   Lesson[]
+  Grade    Grade[]
+  Presence Presence[]
 }
 
 model Session {
@@ -58,9 +59,11 @@ model Lesson {
   subject String
   topic   String   @default("")
 
-  teacher User    @relation(fields: [userId], references: [id])
+  teacher User @relation(fields: [userId], references: [id])
   userId  Int
-  Grade   Grade[]
+
+  Grade    Grade[]
+  Presence Presence[]
 }
 
 model Grade {
@@ -73,4 +76,16 @@ model Grade {
   userId   Int
 
   grade Int
+}
+
+model Presence {
+  id Int @id @default(autoincrement())
+
+  date     DateTime
+  lesson   Lesson    @relation(fields: [lessonId], references: [id])
+  student  User    @relation(fields: [userId], references: [id])
+  lessonId Int
+  userId   Int
+
+  type String
 }

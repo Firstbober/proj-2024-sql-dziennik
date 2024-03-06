@@ -5,7 +5,22 @@ meta {
 }
 
 post {
-  url: http://localhost:3006/api/v1/widok/lekcje/:id/frekwencja/zmien
-  body: none
+  url: http://localhost:3006/api/v1/widok/lekcje/2/frekwencja/zmien
+  body: json
   auth: none
+}
+
+headers {
+  Authorization: KfmSeKWSAmfjEqmMAlYHK~2AVr
+}
+
+body:json {
+  {
+    "uczniowie": [
+      {
+        "id": 2,
+        "frekwencja": "n"
+      }
+    ]
+  }
 }

@@ -293,7 +293,7 @@ export default async function lekcjeController(fastify: FastifyInstance) {
         },
       });
 
-      console.log(grades)
+      console.log(grades);
 
       let uczniowie: any = {};
 
@@ -330,8 +330,8 @@ export default async function lekcjeController(fastify: FastifyInstance) {
   );
 
   interface Uczeń {
-    nr: number;
-    frekwencja: "b" | "o" | "?";
+    id: number;
+    frekwencja: "b" | "o" | "n";
   }
 
   // GET /api/v1/widok/lekcje/:id/frekwencja
@@ -349,30 +349,83 @@ export default async function lekcjeController(fastify: FastifyInstance) {
         return reply.code(401).send();
       }
 
-      reply.send({
-        uczniowie: [
-          {
-            nr: 1,
-            imie_nazwisko: "Jan Góra",
-            frekwencja: [
-              "b",
-              "o",
-              "o",
-              "o",
-              "o",
-              "o",
-              "o",
-              "o",
-              "o",
-              "n",
-              "?",
-              "b",
-              "b",
-              "b",
-            ],
+      if (request.params.id == undefined) {
+        return reply.code(400).send();
+      }
+
+      const lesson = await prisma.lesson.findUnique({
+        where: {
+          id: Number(request.params.id),
+        },
+
+        select: {
+          id: true,
+          date: true,
+        },
+      });
+
+      if (lesson == null) {
+        return reply.code(404).send();
+      }
+
+      const presences = await prisma.presence.findMany({
+        where: {
+          date: {
+            gte: startOfDay(lesson.date),
+            lte: endOfDay(lesson.date),
           },
-        ],
-        obecnych: [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+        },
+        select: {
+          student: true,
+          type: true,
+        },
+        orderBy: {
+          lessonId: "asc",
+        },
+      });
+
+      let uczniowie: any = {};
+
+      for (const presence of presences) {
+        if (uczniowie[presence.student.id] == undefined) {
+          uczniowie[presence.student.id] = {
+            id: presence.student.id,
+            imie_naziwsko: presence.student.name,
+            frekwencja: [],
+          };
+        }
+
+        uczniowie[presence.student.id].frekwencja.push(presence.type);
+      }
+
+      for (const k_uczen of Object.keys(uczniowie)) {
+        for (let i = uczniowie[k_uczen].frekwencja.length; i < 14; i++) {
+          uczniowie[k_uczen].frekwencja.push("b");
+        }
+      }
+
+      let obecnosci = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+      for (let i = 0; i < 14; i++) {
+        for (const k_uczen of Object.keys(uczniowie)) {
+          if (
+            uczniowie[k_uczen].frekwencja[i] != "b" &&
+            uczniowie[k_uczen].frekwencja[i] != "n"
+          ) {
+            obecnosci[i] += 1;
+          }
+        }
+      }
+
+      reply.send({
+        uczniowie: Object.values(uczniowie).map((v: any) => {
+          return {
+            id: v.id,
+            imie_nazwisko: v.imie_naziwsko,
+            frekwencja: v.frekwencja,
+          };
+        }),
+        obecnych: obecnosci,
       });
     }
   );
@@ -393,6 +446,69 @@ export default async function lekcjeController(fastify: FastifyInstance) {
     ) {
       if ((await checkIfLogged(request.headers.authorization!)) == null) {
         return reply.code(401).send();
+      }
+
+      const lesson = await prisma.lesson.findUnique({
+        where: {
+          id: Number(request.params.id),
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+      if (lesson == null) {
+        return reply.code(404).send();
+      }
+
+      let are_students_there = true;
+
+      for (const student of request.body.uczniowie) {
+        const student = await prisma.user.findUnique({
+          where: {
+            id: Number(request.params.id),
+          },
+
+          select: {
+            id: true,
+          },
+        });
+
+        are_students_there &&= student != null;
+      }
+
+      if (!are_students_there) {
+        return reply.code(404).send();
+      }
+
+      for (const student of request.body.uczniowie) {
+        const p = await prisma.presence.findMany({
+          where: {
+            AND: [{ userId: student.id }, { lessonId: lesson.id }],
+          },
+        });
+
+        if (p.length == 0) {
+          await prisma.presence.create({
+            data: {
+              date: new Date(),
+              lessonId: lesson.id,
+              userId: student.id,
+              type: student.frekwencja,
+            },
+          });
+        } else {
+          await prisma.presence.update({
+            where: {
+              id: p[0].id
+            },
+            data: {
+              type: student.frekwencja,
+              lessonId: lesson.id,
+            }
+          });
+        }
       }
 
       reply.send();

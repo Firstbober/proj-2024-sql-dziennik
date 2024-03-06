@@ -162,7 +162,6 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
         {
             "uczniowie": [
                 {
-                    "nr": 1,
                     "id": 2,
                     "imie_nazwisko": "Jan Góra",
                     "frekwencja": ["b", "o", "o", "o",
@@ -170,9 +169,7 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
                     "b", "b"]
                 }
             ],
-            "obecnych": [0, 1,1, 1,
-                    1, 1,1, 1, 1, 0, 0, 0,
-                    0, 0]
+            "obecnych": [0]
         }
         ```
     - ### Kody
@@ -185,7 +182,6 @@ Każdy endpoint potrzebuje header `Authorization`: `Token XXXX`
         {
             "uczniowie": [
                 {
-                    "nr": 1,
                     "id": 2,
                     "frekwencja": "o"
                 }
